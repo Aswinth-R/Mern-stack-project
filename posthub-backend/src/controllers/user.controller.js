@@ -1,10 +1,15 @@
 import User from "../models/user.model.js";
+import jwt from "jsonwebtoken"
 
 const registerUser = async (req, res) => {
     try {
-        const { username, email, password } = req.body;
+        const { username, email, password, role } = req.body;
+
+        const allowRoles = ["user", "admin"];
+        const userRole = allowRoles.includes(role) ? role : "user"
+
         // basic validation
-        if (!username || !email || !password) {
+        if (!username || !email || !password ) {
            return res.status(404).json({ message: "All fields are imortant!" })
         }
 
@@ -14,16 +19,18 @@ const registerUser = async (req, res) => {
             return res.status(400).json({ message: "User already exists!" });
         }
         //create user
-        const user = await User.create({
+        const user = await User.create(
+            {
             username,
             email: email.toLowerCase(),
-            password
-        })
+            password,
+            role: userRole
+            }
+        )
 
         res.status(201).json({ 
-            success: "User registered",
-            user
-        })
+            message: `User registered with username: ${user.username}`
+        });
 
     } catch (error) {
         res.status(500).json({
@@ -48,13 +55,17 @@ const loginUser = async(req, res) => {
         return res.status(400).json({ message: "Invalid credentials"});
     }
 
+    const token = jwt.sign(
+        { id: user._id, role: user.role },
+        process.env.JWT_SECRET,
+        {
+            expiresIn: "1h"
+        }
+    )
+
     res.status(200).json({
         message: "User Logged in",
-        user:{ 
-            id: user._id,
-            email: user.email,
-            username: user.username
-        }
+        token
     })
 
     }catch (error){

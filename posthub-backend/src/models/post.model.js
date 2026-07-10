@@ -17,6 +17,10 @@ const postSchema = new Schema ({
         required: [true,'Please enter age'],
         min: 1,
         max: 150
+    },
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User"
     }
     },
     {

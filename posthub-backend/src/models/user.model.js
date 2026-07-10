@@ -25,7 +25,12 @@ const userSchema = new Schema ({
         required: [true, 'Please enter password'],
         minlength: 6,
         maxlength: 50
+    },
+    role: {
+     type: String,
+     default: "user"
     }
+
 },{ timestamps: true });
 
 // before saving any password we need to hash it
